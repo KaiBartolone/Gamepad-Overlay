@@ -8,14 +8,14 @@
 #ifndef OVERLAY_H
 #define OVERLAY_H
 
-#include <QMouseEvent>
+#include <QGamepad>
+#include <QGamepadManager>
+#include <QObject>
 #include <QPaintDevice>
 #include <QPainter>
+#include <QString>
 #include <QSvgRenderer>
 #include <QWidget>
-#include <cmath>
-#include <iostream>
-#include <unordered_map>
 
 namespace Ui
 {
@@ -28,15 +28,27 @@ class Overlay : public QWidget
 
   public:
     explicit Overlay(QWidget* parent = nullptr);
-    ~Overlay();
+
+    /**
+     * @fn search
+     * -----------------------------
+     * Generates list of gamepades and choose first one.
+     */
+    void getGamepad();
 
   protected:
     /**
-     * @fn painEvent
+     * @fn paintEvent
      * -----------------------------
-     * Overloads default paint constructor in order to render dualshock overlay svgs.
+     * Overloads default paint constructor in order to render gamepad overlay svgs.
      */
     void paintEvent(QPaintEvent*) override;
+
+  private:
+    Ui::Overlay* ui;
+    QGamepadManager* manager;
+    QGamepad gamepad;
+    int deviceID = -1;
 };
 
 #endif // OVERLAY_H
