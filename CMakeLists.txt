@@ -15,7 +15,7 @@ set( CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/forms )
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 # Find packages
-find_package( Qt5 COMPONENTS Widgets REQUIRED )
+find_package( Qt5 COMPONENTS Widgets Svg Gamepad REQUIRED )
 
 # Specify Include Directories
 include_directories( ${OpenCV_INCLUDE_DIRS} )
@@ -31,5 +31,5 @@ file( GLOB SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_
 add_executable( overlay ${SRCFILES} )
 
 # Link libraries
-target_link_libraries( overlay PRIVATE Qt5::Widgets )
+target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg Qt5::Gamepad )
 target_include_directories( overlay PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include )
