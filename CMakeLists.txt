@@ -16,13 +16,17 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 # Find packages
 find_package( Qt5 COMPONENTS Widgets Svg Gamepad REQUIRED )
+# find_package( jsoncpp CONFIG REQUIRED )
+find_package( HIDAPI CONFIG REQUIRED )
 
 # Specify Include Directories
-include_directories( ${OpenCV_INCLUDE_DIRS} )
 include_directories( ${Qt5Widgets_INCLUDES} )
+# include_directories( ${jsoncpp_INCLUDE_DIRS} )
+include_directories( ${HIDAPI_INCLUDE_DIR} )
 
 # Additional Library Directories
-link_directories( ${OpenCV_LIB_DIR} )
+# link_directories( ${jsoncpp_LIB_DIR} )
+# target_link_directories( ${HIDAPI_LIBRARY} )
 
 # Define source files to compile
 file( GLOB SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/* ${CMAKE_CURRENT_SOURCE_DIR}/libs/* ${CMAKE_CURRENT_SOURCE_DIR}/forms/* )
@@ -31,5 +35,5 @@ file( GLOB SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_
 add_executable( overlay ${SRCFILES} )
 
 # Link libraries
-target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg Qt5::Gamepad )
+target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg Qt5::Gamepad ${HIDAPI_LIBRARY} )
 target_include_directories( overlay PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include )
