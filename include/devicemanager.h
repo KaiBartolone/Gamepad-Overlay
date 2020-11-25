@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <wchar.h>
 
 class DeviceManager
@@ -38,6 +39,24 @@ public:
    */
   hid_device *getDevice(unsigned short id);
   hid_device *getDevice(std::string product);
+
+  /**
+   * @fn close
+   * -----------------
+   * @description: Closes device stream.
+   * @param handle: hid handle of device
+   */
+  void close(hid_device *handle);
+
+private:
+  /**
+   * @fn open
+   * @description: Opens device stream.
+   * @param blocking: specifies if read blocks
+   * @param path: device path ex. /dev/usb0
+   * @return: hid_device pointer or nullptr if fails
+   */
+  hid_device *open(char *path, bool blocking);
 };
 
 #endif // DEVICEMANAGER_H

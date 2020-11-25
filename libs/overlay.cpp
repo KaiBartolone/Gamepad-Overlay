@@ -8,20 +8,20 @@
 #include <overlay.h>
 #include <ui_overlay.h>
 
-Overlay::Overlay(QWidget* parent)
-    : QWidget(parent), ui(new Ui::Overlay), manager(QGamepadManager::instance())
+Overlay::Overlay(QWidget *parent)
+// : QWidget(parent), ui(new Ui::Overlay), manager(QGamepadManager::instance())
 {
     ui->setupUi(this);
-    connect(this->manager, &QGamepadManager::connectedGamepadsChanged, this, &Overlay::getGamepad);
+    // connect(this->manager, &QGamepadManager::connectedGamepadsChanged, this, &Overlay::getGamepad);
 
     // Event connections
     // connect(this->gamepad, &QGamepad::buttonAChanged, this, &Overlay::repaint);
 }
 
-void Overlay::paintEvent(QPaintEvent*)
+void Overlay::paintEvent(QPaintEvent *)
 {
     // Initialize renderer with base asset
-    QSvgRenderer* renderer;
+    QSvgRenderer *renderer;
     renderer = new QSvgRenderer(QString("assets/dualshock_black/base.svg"));
     renderer->setAspectRatioMode(Qt::KeepAspectRatio);
 
@@ -34,7 +34,7 @@ void Overlay::paintEvent(QPaintEvent*)
     double scale = getScale(renderer->defaultSize(), renderer->viewBox().size());
 }
 
-void Overlay::paintButtons(QPaintDevice* device, QPoint corner, double scale)
+void Overlay::paintButtons(QPaintDevice *device, QPoint corner, double scale)
 {
     const double joystickRange = 10;
     std::string baseFolder = "assets/dualshock/";
@@ -87,18 +87,18 @@ double Overlay::getScale(QSize defaultSize, QSize viewBox)
     return result;
 }
 
-void Overlay::getGamepad()
-{
-    // Grab our device list
-    QList<int> gamepadList = manager->connectedGamepads();
+// void Overlay::getGamepad()
+// {
+//     // Grab our device list
+//     QList<int> gamepadList = manager->connectedGamepads();
 
-    // If empty set deviceID equal to -1
-    if (gamepadList.isEmpty())
-    {
-        deviceID = -1;
-        return;
-    }
+//     // If empty set deviceID equal to -1
+//     if (gamepadList.isEmpty())
+//     {
+//         deviceID = -1;
+//         return;
+//     }
 
-    // If gamepad is not connected, get new one
-    if (!manager->isGamepadConnected(deviceID)) deviceID = gamepadList[0];
-}
+//     // If gamepad is not connected, get new one
+//     if (!manager->isGamepadConnected(deviceID)) deviceID = gamepadList[0];
+// }

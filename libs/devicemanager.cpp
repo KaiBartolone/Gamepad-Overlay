@@ -58,11 +58,10 @@ hid_device *DeviceManager::getDevice(unsigned short id)
     {
         if (id == cur_dev->product_id)
         {
-            // Create copy of path, return open device, free memory for devs information
-            char temp_path[MAX_PATH_LENGTH];
-            strcpy(temp_path, cur_dev->path);
+            // Return open device and free memory for devs information
+            hid_device *handle = DeviceManager::open(cur_dev->path, false);
             hid_free_enumeration(devs);
-            return hid_open_path(temp_path);
+            return handle;
         }
 
         cur_dev = cur_dev->next;
@@ -89,11 +88,10 @@ hid_device *DeviceManager::getDevice(std::string product)
     {
         if (wcscmp(widecstr, cur_dev->product_string) == 0)
         {
-            // Create copy of path, return open device, free memory for devs information
-            char temp_path[MAX_PATH_LENGTH];
-            strcpy(temp_path, cur_dev->path);
+            // Return open device and free memory for devs information
+            hid_device *handle = DeviceManager::open(cur_dev->path, false);
             hid_free_enumeration(devs);
-            return hid_open_path(temp_path);
+            return handle;
         }
 
         cur_dev = cur_dev->next;
@@ -101,4 +99,18 @@ hid_device *DeviceManager::getDevice(std::string product)
 
     hid_free_enumeration(devs); // Free memory for dev information
     return nullptr;
+}
+
+void DeviceManager::close(hid_device *handle)
+{
+    hid_close(handle);
+}
+
+hid_device *DeviceManager::open(char *path, bool blocking)
+{
+    hid_device *handle = hid_open_path(path);
+    if (handle != nullptr)
+        hid_set_nonblocking(handle, !blocking);
+
+    return handle;
 }
