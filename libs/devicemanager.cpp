@@ -13,7 +13,10 @@
 DeviceManager::DeviceManager()
 {
     if (hid_init())
+    {
         std::cerr << "HID initialization failed." << std::endl;
+        throw;
+    }
 }
 
 DeviceManager::~DeviceManager() { hid_exit(); }
