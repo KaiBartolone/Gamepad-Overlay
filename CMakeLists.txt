@@ -27,6 +27,15 @@ include_directories( ${HIDAPI_INCLUDE_DIR} )
 # Additional Library Directories
 # link_directories( ${jsoncpp_LIB_DIR} )
 # target_link_directories( ${HIDAPI_LIBRARY} )
+find_library( JOYSHOCK_LIBRARIES NAMES JoyShockLibrary JoyShockLibrary.dll PATHS ${CMAKE_CURRENT_SOURCE_DIR}/dep)
+
+# INCLUDE(FindFreetype)
+# IF(NOT FREETYPE_FOUND)
+#   FIND_LIBRARY(FREETYPE_LIBRARIES NAMES libfreetype freetype.dll PATHS "./libs/MacOS" "./libs/Windows" DOC "Freetype library")
+#   FIND_PATH(FREETYPE_INCLUDE_DIRS ftbuild.h "./includes" DOC "Freetype includes")
+# ENDIF(NOT FREETYPE_FOUND)
+# INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
+# TARGET_LINK_LIBRARIES(MyProject ${FREETYPE_LIBRARIES})
 
 # Define source files to compile
 file( GLOB SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/* ${CMAKE_CURRENT_SOURCE_DIR}/libs/* ${CMAKE_CURRENT_SOURCE_DIR}/forms/* )
@@ -35,5 +44,6 @@ file( GLOB SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_
 add_executable( overlay ${SRCFILES} )
 
 # Link libraries
-target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg ${HIDAPI_LIBRARY} )
+# target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg ${HIDAPI_LIBRARY} )
+target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg ${HIDAPI_LIBRARY} ${JOYSHOCK_LIBRARIES} )
 target_include_directories( overlay PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include )
