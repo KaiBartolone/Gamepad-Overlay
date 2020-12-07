@@ -1,6 +1,6 @@
 /**
  * @file overlay.h
- * -----------------------------
+ * ----------
  * @brief Defines gamepad overlay widget.
  * @author Bartolone, Kai
  */
@@ -10,74 +10,105 @@
 
 // #include <QGamepad>
 // #include <QGamepadManager>
+#include <JoyShockLibrary.h>
 #include <QObject>
 #include <QPaintDevice>
 #include <QPainter>
 #include <QString>
 #include <QSvgRenderer>
 #include <QWidget>
+#include <fstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
+#include <thread>
+#include <unordered_map>
 
 namespace Ui
 {
-  class Overlay;
+class Overlay;
 }
 
 class Overlay : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  explicit Overlay(QWidget *parent = nullptr);
+  public:
+    explicit Overlay(QWidget* parent = nullptr);
+    ~Overlay();
 
-  /**
-     * @fn search
-     * -----------------------------
-     * Generates list of gamepades and choose first one.
-     */
-  void getGamepad();
-
-protected:
-  /**
+  protected:
+    /**
      * @fn paintEvent
-     * -----------------------------
-     * Overloads default paint constructor in order to render gamepad overlay svgs.
+     * ----------
+     * @description: Overloads default paint constructor in order to render gamepad overlay svgs.
      */
-  void paintEvent(QPaintEvent *) override;
+    void paintEvent(QPaintEvent*) override;
 
-  /** Private Functions */
-private:
-  /**
+    /** Private Functions */
+  private:
+    /**
+     * @fn getGamepad
+     * ----------
+     * @description: Searches for dualshock 4 in hid devices, and choose first one.
+     * @returns: -1 if no gamepad is found or the device id
+     */
+    int getGamepad();
+
+    /**
+     * @fn connectGamepad
+     * ----------
+     * @description: Trys to connect to dualshock 4.
+     * @returns: true if gamepad is connected and false if no connection can be made
+     */
+    bool connectGamepad();
+
+    /**
      * @fn paintButtons
-     * -----------------------------
-     * Helper function for paintEvent that paints buttons that are on.
+     * ----------
+     * @description: Helper function for paintEvent that paints buttons that are on.
      */
-  void paintButtons(QPaintDevice *device, QPoint corner, double scale);
+    void paintButtons(QPaintDevice* device, QPoint corner, double scale);
 
-  /**
+    /**
+     * @fn paintFeatures
+     * ----------
+     * @description: Helper function for paintEvent that paints dualshock features that are on.
+     */
+    void paintFeatures(QPaintDevice* device, QPoint corner, double scale);
+
+    /**
      * @fn getScale
-     * -----------------------------
-     * Returns the scale of the base dualshock svg.
+     * ----------
+     * @returns: Returns the scale of the base dualshock svg.
      * @param defaultSize is provided by a member function of the svg renderer
      * @param viewBox is the size of the widget the svg is drawn on
      */
-  double getScale(QSize defaultSize, QSize viewBox);
+    double getScale(QSize defaultSize, QSize viewBox);
 
-  /**
+    /**
      * @fn locateCorner
-     * -----------------------------
-     * Locates the corner point of the base dualshock svg on the widget.
+     * ----------
+     * @returns: Locates the corner point of the base dualshock svg on the widget.
      * @param defaultSize is provided by a member function of the svg renderer
      * @param viewBox is the size of the widget the svg is drawn on
      */
-  QPoint locateCorner(QSize defaultSize, QSize viewBox);
+    QPoint locateCorner(QSize defaultSize, QSize viewBox);
 
-  /** Private Members */
-private:
-  Ui::Overlay *ui;
-  // QGamepadManager* manager;
-  // QGamepad gamepad;
-  int deviceID = -1; // -1 signifies no device
+    /**
+     * @fn paintLoop
+     * ----------
+     * @description: Calls repaint on a thread for the specified refresh rate.
+     */
+    void paintLoop();
+
+    /** Private Members */
+  private:
+    Ui::Overlay* ui;
+    int deviceID = -1; // -1 signifies no device
+    bool gamepadConnected = false;
+    int refresh_rate = 500; // Frequency of controller input checking in hertz
+    std::thread poll;
 };
 
 #endif // OVERLAY_H
