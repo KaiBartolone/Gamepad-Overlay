@@ -11,6 +11,7 @@
 // #include <QGamepad>
 // #include <QGamepadManager>
 #include <JoyShockLibrary.h>
+#include <QMouseEvent>
 #include <QObject>
 #include <QPaintDevice>
 #include <QPainter>
@@ -71,6 +72,13 @@ class Overlay : public QWidget
     void paintButtons(QPaintDevice* device, QPoint corner, double scale);
 
     /**
+     * @fn paintAxes
+     * ----------
+     * @description: Helper function for paintEvent that paints axes that move.
+     */
+    void paintAxes(QPaintDevice* device, QPoint corner, double scale);
+
+    /**
      * @fn paintFeatures
      * ----------
      * @description: Helper function for paintEvent that paints dualshock features that are on.
@@ -101,6 +109,21 @@ class Overlay : public QWidget
      * @description: Calls repaint on a thread for the specified refresh rate.
      */
     void paintLoop();
+
+    /**
+     * @fn paintAsset
+     * ----------
+     * @description: Paints an svg asset with a transparent background.
+     */
+    void paintAsset(std::string name, QPoint place, QPaintDevice* device, QPoint corner,
+                    double scale);
+
+    /**
+     * @fn paintTouch
+     * ----------
+     * @description: Paints cursor onto touch points.
+     */
+    void paintTouch(QPaintDevice* device, QPoint corner, double scale);
 
     /** Private Members */
   private:

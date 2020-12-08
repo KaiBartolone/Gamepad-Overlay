@@ -13,6 +13,7 @@
 Overlay::Overlay(QWidget* parent) : QWidget(parent), ui(new Ui::Overlay)
 {
     ui->setupUi(this);
+    connect(this, &Overlay::mouseDoubleClickEvent, this, &Overlay::connectGamepad);
     connectGamepad();
 }
 
@@ -21,7 +22,7 @@ void Overlay::paintEvent(QPaintEvent*)
     // Initialize renderer with base asset
     QSvgRenderer* renderer;
 
-    if (deviceID != -1)
+    if (gamepadConnected)
         renderer = new QSvgRenderer(QString("assets/dualshock_black/base.svg"));
     else
         renderer = new QSvgRenderer(QString("assets/dualshock_black/disconnected.svg"));
@@ -33,7 +34,7 @@ void Overlay::paintEvent(QPaintEvent*)
     renderer->render(&painter);
     renderer->setViewBox(QRectF(0, 0, this->width(), this->height()));
 
-    if (deviceID != -1)
+    if (gamepadConnected)
     {
         QPoint corner = locateCorner(renderer->defaultSize(), renderer->viewBox().size());
         double scale = getScale(renderer->defaultSize(), renderer->viewBox().size());
@@ -43,12 +44,9 @@ void Overlay::paintEvent(QPaintEvent*)
 
 void Overlay::paintFeatures(QPaintDevice* device, QPoint corner, double scale)
 {
-    std::string baseFolder = "assets/dualshock_black/";
-
-    QPoint buttonPlace = {0, 0};
-    QSvgRenderer renderer;
-
     paintButtons(this, corner, scale);
+    paintAxes(this, corner, scale);
+    paintTouch(this, corner, scale);
 }
 
 QPoint Overlay::locateCorner(QSize defaultSize, QSize viewBox)
@@ -184,11 +182,9 @@ void Overlay::paintButtons(QPaintDevice* device, QPoint corner, double scale)
         {JSMASK_UP, {"dpad_up", {136, 181}}},
         {JSMASK_HOME, {"home", {382, 344}}},
         {JSMASK_L, {"left_bumper", {109, 94}}},
-        {JSMASK_LCLICK, {"left_stick_pressed", {228, 308}}},
         {JSMASK_ZL, {"left_trigger", {108, 0}}},
         {JSMASK_E, {"o_button", {682, 217}}},
         {JSMASK_R, {"right_bumper", {598, 94}}},
-        {JSMASK_RCLICK, {"right_stick_pressed", {484, 308}}},
         {JSMASK_ZR, {"right_trigger", {597, 0}}},
         {JSMASK_W, {"square_button", {567, 217}}},
         {JSMASK_SHARE, {"share", {227, 142}}},
@@ -220,54 +216,90 @@ void Overlay::paintButtons(QPaintDevice* device, QPoint corner, double scale)
             painter.drawImage(location, image);
         }
     }
+}
 
-    // int buttons = JslGetButtons(deviceID);
+void Overlay::paintAxes(QPaintDevice* device, QPoint corner, double scale)
+{
+    double offset = 20;
 
-    // if (buttons & JSMASK_UP)
-    //     ;
+    std::pair<std::string, QPoint> right = {"right_stick", {484, 308}};
+    std::pair<std::string, QPoint> left = {"left_stick", {228, 308}};
+    if ((JSMASK_LCLICK & JslGetButtons(deviceID)) != 0) left.first = "left_stick_pressed";
+    if ((JSMASK_RCLICK & JslGetButtons(deviceID)) != 0) right.first = "right_stick_pressed";
+
+    QPoint location =
+        QPoint((int)round(((double)right.second.x() + offset * JslGetRightX(deviceID)) * scale) +
+                   corner.x(),
+               (int)round(((double)right.second.y() - offset * JslGetRightY(deviceID)) * scale) +
+                   corner.y());
+
+    paintAsset(right.first, location, this, corner, scale);
+
+    location = QPoint(
+        (int)round(((double)left.second.x() + offset * JslGetLeftX(deviceID)) * scale) + corner.x(),
+        (int)round(((double)left.second.y() - offset * JslGetLeftY(deviceID)) * scale) +
+            corner.y());
+    paintAsset(left.first, location, this, corner, scale);
+
+    // std::string filename = "assets/dualshock_black/" + asset.first + ".svg";
+
+    // renderer.load(QString(filename.c_str()));
+
+    // int width = (int)round((double)renderer.defaultSize().width() * scale);
+    // int height = (int)round((double)renderer.defaultSize().height() * scale);
+
+    // QPoint location = QPoint((int)round((double)(asset.second.x() + offset) * scale) +
+    // corner.x(),
+    //                          (int)round((double)(asset.second.y() + offset) * scale) +
+    //                          corner.y());
+
+    // QImage image(width, height, QImage::Format_ARGB32);
+    // image.fill(Qt::transparent);
+    // QPainter imagePainter(&image);
+    // renderer.render(&imagePainter);
+
     // QPainter painter(device);
-    // QSvgRenderer renderer;
+    // painter.drawImage(location, image);
+}
+void Overlay::paintAsset(std::string name, QPoint place, QPaintDevice* device, QPoint corner,
+                         double scale)
+{
+    name = "assets/dualshock_black/" + name + ".svg";
+    QSvgRenderer renderer;
+    renderer.load(QString(name.c_str()));
 
-    // unordered_map<string, QPoint> icons = {{"dpad_down", {136, 255}},
-    //                                        {"dpad_left", {92, 226}},
-    //                                        {"dpad_right", {165, 226}},
-    //                                        {"dpad_up", {136, 181}},
-    //                                        {"home", {382, 344}},
-    //                                        {"left_bumper", {109, 94}},
-    //                                        {"left_stick_pressed", {228, 308}},
-    //                                        {"left_trigger", {108, 0}},
-    //                                        {"o_button", {682, 217}},
-    //                                        {"right_bumper", {598, 94}},
-    //                                        {"right_stick_pressed", {484, 308}},
-    //                                        {"right_trigger", {597, 0}},
-    //                                        {"square_button", {567, 217}},
-    //                                        {"share", {227, 142}},
-    //                                        {"options", {551, 142}},
-    //                                        {"touchpad", {272, 122}},
-    //                                        {"triangle_button", {629, 159}},
-    //                                        {"x_button", {629, 276}}};
+    int width = (int)round((double)renderer.defaultSize().width() * scale);
+    int height = (int)round((double)renderer.defaultSize().height() * scale);
 
-    // for (pair<string, QPoint> pair : icons)
-    // {
-    //     if (gamepad.getButtonState(pair.first))
-    //     {
-    //         string filename = "assets/overlay/" + pair.first + ".svg";
-    //         renderer.load(QString(filename.c_str()));
+    QImage image(width, height, QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
 
-    //         int width = (int)round((double)renderer.defaultSize().width() * scale);
-    //         int height = (int)round((double)renderer.defaultSize().height() * scale);
+    QPainter imagePainter(&image);
+    renderer.render(&imagePainter);
 
-    //         QPoint location = QPoint((int)round((double)pair.second.x() * scale) +
-    //         corner.x(),
-    //                                  (int)round((double)pair.second.y() * scale) +
-    //                                  corner.y());
+    QPainter painter(device);
+    painter.drawImage(place, image);
+}
 
-    //         QImage image(width, height, QImage::Format_ARGB32);
-    //         image.fill(Qt::transparent);
-    //         QPainter imagePainter(&image);
-    //         renderer.render(&imagePainter);
+void Overlay::paintTouch(QPaintDevice* device, QPoint corner, double scale)
+{
+    QPoint tl = {269, 119};
+    float height = 151, width = 262;
 
-    //         QPainter painter(device);
-    //         painter.drawImage(location, image);
-    //     }
+    TOUCH_STATE state = JslGetTouchState(deviceID);
+
+    if (state.t0Down)
+    {
+        QPoint location = QPoint(
+            (int)round(((double)tl.x() + (double)(width * state.t0X)) * scale) + corner.x(),
+            (int)round(((double)tl.y() + (double)(height * state.t0Y)) * scale) + corner.y());
+        paintAsset("cursor", location, this, corner, scale);
+    }
+    if (state.t1Down)
+    {
+        QPoint location = QPoint(
+            (int)round(((double)tl.x() + (double)(width * state.t1X)) * scale) + corner.x(),
+            (int)round(((double)tl.y() + (double)(height * state.t1Y)) * scale) + corner.y());
+        paintAsset("cursor", location, this, corner, scale);
+    }
 }
