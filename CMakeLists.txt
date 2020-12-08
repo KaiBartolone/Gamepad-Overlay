@@ -31,6 +31,7 @@ file( GLOB SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_
 # Set some Win32 Specific Settings
 SET(GUI_TYPE WIN32)
 add_executable( overlay ${GUI_TYPE} ${SRCFILES} )
+# add_executable( overlay ${SRCFILES} )
 
 # Link libraries
 target_link_libraries( overlay PRIVATE Qt5::Widgets Qt5::Svg ${HIDAPI_LIBRARY} ${JOYSHOCK_LIBRARIES} )
