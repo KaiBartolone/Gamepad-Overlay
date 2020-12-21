@@ -10,7 +10,7 @@
 #include "overlay.h"
 #include <Windows.h>
 
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -20,6 +20,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     setWindowFlags(Qt::FramelessWindowHint);
     SetWindowPos((HWND)winId(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
-    int size = qMin(this->size().height(), this->size().width()) / 2;
+    int size = qMin(this->size().height(), this->size().width());
     ui->gamepad->setFixedSize(size, size);
 }
